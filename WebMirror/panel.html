@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header id="header">
+      <h1>WebMirror</h1>
+      <span class="version">v1.0</span>
+    </header>
+
+    <!-- Info Bar -->
+    <div id="info-bar">
+      <span id="current-url" class="url-display">等待DevTools就绪...</span>
+    </div>
+
+    <!-- Controls -->
+    <section id="controls">
+      <div class="control-group">
+        <label>
+          爬取深度:
+          <select id="depth-select">
+            <option value="0">0 (仅当前页)</option>
+            <option value="1">1</option>
+            <option value="2" selected>2 (推荐)</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <label>
+          页面等待(秒):
+          <select id="delay-select">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3 (推荐)</option>
+            <option value="5">5</option>
+            <option value="8">8</option>
+            <option value="10">10</option>
+          </select>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="same-domain-check" checked>
+          仅同域
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="beautify-check">
+          美化文件
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="ignore-empty-check">
+          忽略空文件
+        </label>
+      </div>
+
+      <div class="action-group">
+        <button id="btn-start" class="btn btn-primary">开始爬取</button>
+        <button id="btn-stop" class="btn btn-danger" disabled>停止</button>
+        <button id="btn-reset" class="btn btn-secondary">重置</button>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section id="progress-section">
+      <div class="progress-stats">
+        <div class="stat">
+          <span class="stat-value" id="stat-pages">0</span>
+          <span class="stat-label">页面已爬</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-queue">0</span>
+          <span class="stat-label">队列中</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-resources">0</span>
+          <span class="stat-label">资源捕获</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-size">0 B</span>
+          <span class="stat-label">总大小</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-html">0</span>
+          <span class="stat-label">HTML页面</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <div id="status-text" class="status-text">就绪</div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <section id="tabs-section">
+      <div class="tabs">
+        <button class="tab active" data-tab="log">日志</button>
+        <button class="tab" data-tab="pages">页面列表</button>
+        <button class="tab" data-tab="resources">资源列表</button>
+        <button class="tab" data-tab="html-pages">HTML页面</button>
+      </div>
+    </section>
+
+    <!-- Tab Content: Log -->
+    <section id="tab-log" class="tab-content active">
+      <div id="log-container" class="log-container">
+        <div class="log-entry info">WebMirror v1.0 — 网站镜像工具</div>
+        <div class="log-entry info">递归爬取 + 网络捕获 + 静态资源 + HTML源码 → ZIP离线托管</div>
+      </div>
+    </section>
+
+    <!-- Tab Content: Pages -->
+    <section id="tab-pages" class="tab-content">
+      <div id="pages-list" class="resource-list">
+        <div class="empty-hint">尚未开始爬取</div>
+      </div>
+    </section>
+
+    <!-- Tab Content: Resources -->
+    <section id="tab-resources" class="tab-content">
+      <div class="filter-bar">
+        <input type="text" id="resource-filter" placeholder="过滤资源URL..." class="filter-input">
+        <select id="type-filter">
+          <option value="all">全部类型</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="js">JavaScript</option>
+          <option value="image">图片</option>
+          <option value="font">字体</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div id="resources-list" class="resource-list">
+        <div class="empty-hint">尚未捕获资源</div>
+      </div>
+    </section>
+
+    <!-- Tab Content: HTML Pages -->
+    <section id="tab-html-pages" class="tab-content">
+      <div id="html-pages-list" class="resource-list">
+        <div class="empty-hint">尚未保存HTML页面</div>
+      </div>
+    </section>
+
+    <!-- Download Section (dynamically populated after ZIP build) -->
+    <section id="download-section" style="display:none;"></section>
+  </div>
+
+  <script src="lib/utils.js"></script>
+  <script src="lib/url-resolver.js"></script>
+  <script src="lib/zip-builder.js"></script>
+  <script src="lib/resource-capture.js"></script>
+  <script src="lib/crawler.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>
