@@ -102,6 +102,37 @@ body {
   padding: 3px 6px;
   font-size: 11px;
 }
+.control-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-light);
+}
+.query-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.query-input {
+  width: 280px;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: monospace;
+}
+.query-hint {
+  color: var(--text-secondary);
+  font-size: 10px;
+  white-space: nowrap;
+}
 .checkbox-label {
   cursor: pointer;
   color: var(--text);
@@ -142,6 +173,14 @@ body {
 .btn-danger:hover:not(:disabled) {
   background: #b71c1c;
 }
+/* 暂停状态按钮（橙色，标识爬取已暂停，等待恢复） */
+.btn-warning {
+  background: #ff9800;
+  color: #fff;
+}
+.btn-warning:hover:not(:disabled) {
+  background: #f57c00;
+}
 .btn-secondary {
   background: #e0e0e0;
   color: #333;
@@ -157,10 +196,89 @@ body {
 .btn-success:hover:not(:disabled) {
   background: #388e3c;
 }
+.btn-green {
+  background: #2e7d32;
+  color: #fff;
+}
+.btn-green:hover:not(:disabled) {
+  background: #1b5e20;
+}
 .btn-large {
   padding: 10px 32px;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Extension Filter Tab */
+.extfilter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.ext-select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--accent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ext-select-all-label input {
+  margin: 0;
+  cursor: pointer;
+}
+.ext-filter-container {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.ext-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid var(--border-light);
+  transition: border-color 0.15s, background 0.15s;
+}
+.ext-checkbox-label:hover {
+  border-color: var(--accent);
+}
+.ext-checkbox-label input {
+  margin: 0;
+  cursor: pointer;
+}
+.ext-name {
+  color: var(--text);
+  font-family: monospace;
+}
+.ext-count {
+  color: var(--text-secondary);
+  font-size: 10px;
+  min-width: 18px;
+  text-align: right;
+}
+.ext-missing {
+  color: var(--border);
+}
+.ext-discovered {
+  border-color: #4caf50;
+  border-style: dashed;
+}
+.ext-hint {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-style: italic;
 }
 
 /* Progress */
@@ -359,8 +477,216 @@ body {
   font-weight: 500;
 }
 
+/* ---- Sensitive Scanner ---- */
+
+/* Scan markers on resource list items */
+.scan-marker {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  margin: 0 4px;
+  white-space: nowrap;
+  cursor: default;
+}
+.scan-marker.critical { background: #d32f2f; color: #fff; }
+.scan-marker.high     { background: #f57c00; color: #fff; }
+.scan-marker.medium   { background: #fbc02d; color: #000; }
+.scan-marker.low      { background: #1976d2; color: #fff; }
+
+/* Severity badges (full-width, for scan results tab) */
+.type-badge.critical { background: #d32f2f; color: #fff; }
+.type-badge.high     { background: #f57c00; color: #fff; }
+.type-badge.medium   { background: #fbc02d; color: #000; }
+.type-badge.low      { background: #1976d2; color: #fff; }
+
+/* Scan result items */
+.scan-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.scan-item:last-child { border-bottom: none; }
+.scan-item .scan-match {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11px;
+  color: #c7254e;
+  background: #fdf0f2;
+  padding: 1px 5px;
+  border-radius: 2px;
+  word-break: break-all;
+  flex: 1;
+  max-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scan-item .scan-file {
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 10px;
+  white-space: nowrap;
+  margin-left: auto;
+  flex: 0 0 auto;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scan stats summary */
+.scan-summary {
+  padding: 6px 10px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+  color: #555;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.scan-summary span { white-space: nowrap; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f5f5f5; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #999; }
+
+/* ---- Passive Monitor (FindSomething 被动监听) ---- */
+
+/* 监听中按钮状态：红点呼吸动画 */
+.btn-green.monitor-recording {
+  background: #d32f2f;
+  color: #fff;
+  animation: monitor-pulse 1.4s ease-in-out infinite;
+}
+.btn-green.monitor-recording:hover:not(:disabled) {
+  background: #b71c1c;
+}
+.btn-green.monitor-recording::before {
+  content: "● ";
+  font-size: 10px;
+}
+@keyframes monitor-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.5); }
+  50% { opacity: 0.85; box-shadow: 0 0 0 4px rgba(211, 47, 47, 0); }
+}
+
+/* 监听路径计数摘要条 */
+/* 监听路径条目复选框 */
+.monitor-item .monitor-check {
+  flex: none;
+  margin: 0;
+  cursor: pointer;
+  width: 12px;
+  height: 12px;
+}
+
+/* 监听黑名单折叠区 */
+.monitor-blacklist-section {
+  padding: 8px 10px;
+  background: #fff8f0;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+}
+.monitor-blacklist-section .blacklist-hint {
+  color: #b26a00;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.monitor-blacklist-section .blacklist-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: monospace;
+  resize: vertical;
+}
+.monitor-blacklist-section .blacklist-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.monitor-blacklist-section .blacklist-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.monitor-blacklist-section .blacklist-status {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.monitor-stats {
+  padding: 6px 10px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-size: 11px;
+  color: #555;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.monitor-stats span { white-space: nowrap; }
+.monitor-stats .stat-strong { color: var(--accent); font-weight: 600; }
+
+/* 监听路径条目 */
+.monitor-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 11px;
+}
+.monitor-item:hover { background: var(--bg-hover); }
+.monitor-item .type-badge.path { background: #0078d4; color: #fff; }
+.monitor-item .type-badge.incomplete_path { background: #00897b; color: #fff; }
+.monitor-item .type-badge.vue { background: #41b883; color: #fff; }
+.monitor-item .type-badge.post { background: #d81b60; color: #fff; }
+.monitor-item .type-badge.url { background: #6a1b9a; color: #fff; }
+.monitor-item .type-badge.domain { background: #ad1457; color: #fff; }
+.monitor-item .type-badge.ip { background: #e65100; color: #fff; }
+.monitor-item .type-badge.ip_port { background: #bf360c; color: #fff; }
+.monitor-item .monitor-path {
+  flex: 1;
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+}
+.monitor-item .monitor-source {
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 10px;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* POST body 预览（修复12）*/
+.monitor-item .monitor-body {
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+  padding: 2px 6px;
+  background: #fff3e0;
+  border-left: 2px solid #d81b60;
+  font-family: monospace;
+  font-size: 10px;
+  color: #5d4037;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 40px;
+  overflow: hidden;
+}

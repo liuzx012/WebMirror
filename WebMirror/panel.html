@@ -9,7 +9,7 @@
     <!-- Header -->
     <header id="header">
       <h1>WebMirror</h1>
-      <span class="version">v1.0</span>
+      <span class="version">v7.0</span>
     </header>
 
     <!-- Info Bar -->
@@ -25,21 +25,36 @@
           <select id="depth-select">
             <option value="0">0 (仅当前页)</option>
             <option value="1">1</option>
-            <option value="2" selected>2 (推荐)</option>
+            <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
-            <option value="5">5</option>
+            <option value="5" selected>5 (推荐)</option>
           </select>
         </label>
         <label>
           页面等待(秒):
           <select id="delay-select">
+            <option value="0.3" selected>0.3 (推荐)</option>
+            <option value="0.5">0.5 (快速)</option>
+            <option value="0.8">0.8</option>
             <option value="1">1</option>
             <option value="2">2</option>
-            <option value="3" selected>3 (推荐)</option>
+            <option value="3">3</option>
             <option value="5">5</option>
             <option value="8">8</option>
             <option value="10">10</option>
+          </select>
+        </label>
+        <label>
+          分卷大小:
+          <select id="volume-select">
+            <option value="0">不分卷</option>
+            <option value="500">500页</option>
+            <option value="1000" selected>1000页</option>
+            <option value="1500">1500页</option>
+            <option value="2000">2000页</option>
+            <option value="3000">3000页</option>
+            <option value="5000">5000页</option>
           </select>
         </label>
         <label class="checkbox-label">
@@ -47,19 +62,52 @@
           仅同域
         </label>
         <label class="checkbox-label">
-          <input type="checkbox" id="beautify-check">
+          <input type="checkbox" id="subdomain-check">
+          子域同主域
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="beautify-check" checked>
           美化文件
         </label>
         <label class="checkbox-label">
           <input type="checkbox" id="ignore-empty-check">
           忽略空文件
         </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="scan-check" checked>
+          敏感扫描
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="keep-query-check" checked>
+          保留query
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="auto-scroll-check" checked>
+          自动滚动
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="rewrite-check" checked>
+          离线重写
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="extract-map-check" checked>
+          提取映射
+        </label>
       </div>
 
       <div class="action-group">
+        <button id="btn-monitor" class="btn btn-green">监听</button>
         <button id="btn-start" class="btn btn-primary">开始爬取</button>
         <button id="btn-stop" class="btn btn-danger" disabled>停止</button>
         <button id="btn-reset" class="btn btn-secondary">重置</button>
+      </div>
+
+      <div class="control-row">
+        <label class="query-label">
+          URL附加参数:
+          <input type="text" id="extra-query-input" placeholder="例: refresh=uuid 或 token=xxx" class="query-input">
+        </label>
+        <span class="query-hint">部分网站需要特定query参数才能访问，直接请求会跳转首页</span>
       </div>
     </section>
 
@@ -83,9 +131,20 @@
           <span class="stat-label">总大小</span>
         </div>
         <div class="stat">
+          <span class="stat-value" id="stat-wpack">0</span>
+          <span class="stat-label">Wpack</span>
+        </div>
+        <div class="stat">
           <span class="stat-value" id="stat-html">0</span>
           <span class="stat-label">HTML页面</span>
         </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-skipped">0</span>
+          <span class="stat-label">已跳过</span>
+        </div>
+        <button id="btn-skip-page" class="btn btn-danger" style="display:none;flex:none;padding:2px 10px;font-size:11px;line-height:1.2;" title="卡住时点击跳过当前页">
+          跳过<span style="display:block;font-size:9px;opacity:0.7;">卡住点击</span>
+        </button>
       </div>
 
       <div class="progress-bar-container">
@@ -99,24 +158,54 @@
     <section id="tabs-section">
       <div class="tabs">
         <button class="tab active" data-tab="log">日志</button>
-        <button class="tab" data-tab="pages">页面列表</button>
+        <button class="tab" data-tab="monitor">监听路径</button>
         <button class="tab" data-tab="resources">资源列表</button>
-        <button class="tab" data-tab="html-pages">HTML页面</button>
+        <button class="tab" data-tab="scan">扫描结果</button>
+        <button class="tab" data-tab="errpage">错误指纹</button>
+        <button class="tab" data-tab="extfilter">正则匹配</button>
       </div>
     </section>
 
     <!-- Tab Content: Log -->
     <section id="tab-log" class="tab-content active">
       <div id="log-container" class="log-container">
-        <div class="log-entry info">WebMirror v1.0 — 网站镜像工具</div>
+        <div class="log-entry info">WebMirror v7.0 — 网站镜像工具</div>
         <div class="log-entry info">递归爬取 + 网络捕获 + 静态资源 + HTML源码 → ZIP离线托管</div>
       </div>
     </section>
 
-    <!-- Tab Content: Pages -->
-    <section id="tab-pages" class="tab-content">
-      <div id="pages-list" class="resource-list">
-        <div class="empty-hint">尚未开始爬取</div>
+    <!-- Tab Content: Monitor (FindSomething 被动监听) -->
+    <section id="tab-monitor" class="tab-content">
+      <div class="filter-bar">
+        <input type="text" id="monitor-filter" placeholder="过滤路径..." class="filter-input">
+        <select id="monitor-type-filter">
+          <option value="all">全部类型</option>
+          <option value="path">Path</option>
+          <option value="incomplete_path">IncompletePath</option>
+          <option value="vue">Vue</option>
+          <option value="post">POST</option>
+          <option value="url">Url</option>
+          <option value="domain">Domain</option>
+          <option value="ip">IP</option>
+          <option value="ip_port">IP:Port</option>
+        </select>
+        <button id="btn-monitor-delete" class="btn btn-danger" style="flex:none;padding:4px 8px;font-size:11px;" title="删除勾选的路径">删除选中</button>
+        <button id="btn-monitor-clear" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">清空缓存</button>
+        <button id="btn-monitor-copy" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">复制全部</button>
+        <button id="btn-monitor-blacklist-toggle" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;" title="展开/收起黑名单编辑">黑名单</button>
+      </div>
+      <div id="monitor-blacklist-section" class="monitor-blacklist-section" style="display:none;">
+        <div class="blacklist-hint">命中下列关键字（词边界匹配，仅 path+query）的接口仍会显示在监听路径中，但爬取时直接跳过不请求（避免触发注销/删除）。每行一个关键字：</div>
+        <textarea id="monitor-blacklist-textarea" class="blacklist-textarea" rows="5" placeholder="delete&#10;logout&#10;loginout"></textarea>
+        <div class="blacklist-actions">
+          <button id="btn-blacklist-save" class="btn btn-primary" style="padding:3px 10px;font-size:11px;">保存</button>
+          <button id="btn-blacklist-reset" class="btn btn-secondary" style="padding:3px 10px;font-size:11px;">恢复默认</button>
+          <span id="blacklist-status" class="blacklist-status"></span>
+        </div>
+      </div>
+      <div id="monitor-stats-bar" class="monitor-stats" style="display:none;"></div>
+      <div id="monitor-list" class="resource-list">
+        <div class="empty-hint">点击「监听」开始被动抓取路径</div>
       </div>
     </section>
 
@@ -139,11 +228,51 @@
       </div>
     </section>
 
-    <!-- Tab Content: HTML Pages -->
-    <section id="tab-html-pages" class="tab-content">
-      <div id="html-pages-list" class="resource-list">
-        <div class="empty-hint">尚未保存HTML页面</div>
+    <!-- Tab Content: Scan Results -->
+    <section id="tab-scan" class="tab-content">
+      <div class="filter-bar">
+        <input type="text" id="scan-filter" placeholder="过滤结果..." class="filter-input">
+        <select id="scan-severity-filter">
+          <option value="all">全部级别</option>
+          <option value="critical">🔴 Critical</option>
+          <option value="high">🟠 High</option>
+          <option value="medium">🟡 Medium</option>
+          <option value="low">🔵 Low</option>
+        </select>
+        <button id="btn-export-rules" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">导出规则</button>
+        <button id="btn-import-rules" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">导入规则</button>
+        <button id="btn-reset-rules" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">重置规则</button>
       </div>
+      <div id="scan-summary-bar" class="scan-summary" style="display:none;"></div>
+      <div id="scan-list" class="resource-list">
+        <div class="empty-hint">尚未扫描</div>
+      </div>
+      <input type="file" id="rules-file-input" accept=".json" style="display:none;">
+    </section>
+
+    <!-- Tab Content: Error Fingerprints -->
+    <section id="tab-errpage" class="tab-content">
+      <div class="filter-bar">
+        <button id="btn-mark-errpage" class="btn btn-danger" style="flex:none;padding:4px 10px;font-size:11px;">标记当前页为错误页</button>
+        <button id="btn-clear-fingerprints" class="btn btn-secondary" style="flex:none;padding:4px 8px;font-size:11px;">清空指纹库</button>
+        <span id="errpage-info" class="ext-hint" style="font-size:11px;color:var(--text-secondary);margin-left:8px;"></span>
+      </div>
+      <div id="fingerprint-list" class="resource-list">
+        <div class="empty-hint">暂无错误页指纹（爬取中自动学习 / 手动标记）</div>
+      </div>
+    </section>
+
+    <!-- Tab Content: Extension Filter -->
+    <section id="tab-extfilter" class="tab-content">
+      <div class="extfilter-toolbar">
+        <label class="ext-select-all-label">
+          <input type="checkbox" id="ext-select-all">
+          <span>全选</span>
+        </label>
+        <button id="btn-ext-preset" class="btn btn-secondary" style="padding:2px 8px;font-size:11px;">恢复预设</button>
+        <span id="ext-apply-hint" class="ext-hint" style="font-size:11px;color:var(--text-secondary);">勾选即生效，配置已持久化</span>
+      </div>
+      <div id="ext-filter-container" class="ext-filter-container"></div>
     </section>
 
     <!-- Download Section (dynamically populated after ZIP build) -->
@@ -155,6 +284,11 @@
   <script src="lib/zip-builder.js"></script>
   <script src="lib/resource-capture.js"></script>
   <script src="lib/crawler.js"></script>
+  <script src="lib/sensitive-scanner.js"></script>
+  <script src="lib/webpack-extractor.js"></script>
+  <script src="lib/passive-monitor.js"></script>
+  <script src="lib/vue-analyzer.js"></script>
+  <script src="lib/error-detector.js"></script>
   <script src="panel.js"></script>
 </body>
 </html>

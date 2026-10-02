@@ -1,14 +1,15 @@
 {
   "manifest_version": 3,
   "name": "WebMirror",
-  "version": "1.0",
+  "version": "2.0",
   "description": "网站镜像工具 - 递归爬取资源，捕获网络请求与网页源码，打包ZIP离线托管",
   "author": "Security Research",
   "permissions": [
     "tabs",
     "downloads",
     "webNavigation",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "host_permissions": [
     "<all_urls>"
